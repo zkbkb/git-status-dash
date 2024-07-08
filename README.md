@@ -12,6 +12,8 @@ This nifty little tool recursively scans a directory of your choice (defaults to
 
 To get this party started, `npx git-status-dash` watches whatever directory it is run in.
 
+You can also install it globally with `npm install -g git-status-dash` and run it from anywhere with `git-status-dash`.
+
 ### Running from the repo
 
 Or, if you'd like to clone the repo, first make sure you have Node.js installed on your system. Then, follow these steps:
