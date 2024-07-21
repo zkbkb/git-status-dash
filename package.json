@@ -1,10 +1,10 @@
 {
   "name": "git-status-dash",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "index.mjs",
   "bin": {
-    "git-status-dash": "index.mjs"
+    "git-status-dash": "index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
