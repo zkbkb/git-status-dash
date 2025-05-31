@@ -4,17 +4,24 @@
 
 Tired of constantly jumping between terminal tabs to check the status of your git repositories? Surprised to find a repo is way behind after making a few changes? Well, jump no more! Introducing the Git Status Monitor – your one-stop shop for keeping tabs on all your git repos in real-time.
 
-## What's in the box? 📦
-
-This nifty little tool recursively scans a directory of your choice (defaults to the current directory) and displays the git status of each repository it finds. It's like having a personal assistant for your git workflow, minus the coffee runs.
-
 ## Getting Started 🏁
 
 To get this party started, `npx git-status-dash` watches whatever directory it is run in.
 
 You can also install it globally with `npm install -g git-status-dash` and run it from anywhere with `git-status-dash`.
 
-### Running from the repo
+```bash
+# Opens in tui mode (thanks @zkbkb)
+npx git-status-dash -t
+
+# Open another directory
+npx git-status-dash -d ~/code/
+
+# Get help
+npx git-status-dash --help
+```
+
+### Running by hand
 
 Or, if you'd like to clone the repo, first make sure you have Node.js installed on your system. Then, follow these steps:
 
@@ -23,8 +30,6 @@ Or, if you'd like to clone the repo, first make sure you have Node.js installed 
 3. Run `npm install` to install the required dependencies.
 4. Make the script executable with `chmod +x git-status-monitor.js`.
 5. Run the script with `./git-status-monitor.js`.
-
-Sit back and watch as the Git Status Monitor works its magic, displaying the status of your repositories in a slick, color-coded table.
 
 ## What's it telling me? 🤔
 
