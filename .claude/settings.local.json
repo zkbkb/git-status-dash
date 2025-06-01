@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go mod init:*)",
+      "Bash(go get:*)",
+      "Bash(time:*)",
+      "Bash(./git-status-dash-go config init)",
+      "Bash(./git-status-dash-go config theme hacker)",
+      "Bash(./git-status-dash-go config set display.tree_view true)"
+    ],
+    "deny": []
+  }
+}

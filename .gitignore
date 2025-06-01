@@ -1,1 +1,6 @@
-node_modules
+node_modules/
+*.log
+git-status-dash-go
+git-status-dash-go-*
+*.tmp
+.DS_Store
