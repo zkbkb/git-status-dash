@@ -27,7 +27,17 @@ git-status-dash
 
 ### Or Use Node.js Version
 ```bash
+# Basic usage
 npx git-status-dash
+
+# Opens in TUI mode (thanks @zkbkb)
+npx git-status-dash -t
+
+# Open another directory
+npx git-status-dash -d ~/code/
+
+# Get help
+npx git-status-dash --help
 ```
 
 **Performance comparison on 127 repos:**
@@ -76,7 +86,6 @@ go run *.go
 # Node.js version  
 npm install && node index.mjs
 ```
-
 ## What's it telling me? 🤔
 
 The table displays the following information for each repository:
