@@ -213,44 +213,68 @@ const renderTUI = async(repos, baseDir) => {
         columnWidth: [3, 32, 25]
     });
 
-    const rows = repos.map(({ symbol, repo, message }) => {
-        const name = path.basename(repo);
-        return [symbol, name, message];
-    });
+    let refreshTimer = null;
+    let detailBox = null;
+    let currentRepos = repos;
 
-    // Colour-code the status rows for TUI
-    const chalkT = (await
-        import ("chalk")).default;
-    const colouredRows = rows.map(r => {
-        const symbol = r[0];
-        let colouredSymbol = chalkT.green(symbol);
-        let colouredRepo = chalkT.green(r[1]);
-        let colouredStatus = chalkT.green(r[2]);
-        if (symbol === "✗" || symbol === "⚠") {
-            colouredSymbol = chalkT.red(symbol);
-            colouredRepo = chalkT.red(r[1]);
-            colouredStatus = chalkT.red(r[2]);
-        } else if (symbol === "↑" || symbol === "↓" || symbol === "↕") {
-            colouredSymbol = chalkT.yellow(symbol);
-            colouredRepo = chalkT.yellow(r[1]);
-            colouredStatus = chalkT.yellow(r[2]);
-        }
-        return [colouredSymbol, colouredRepo, colouredStatus];
-    });
-    table.setData({ headers: ["S", "Repo", "Status"], data: colouredRows });
+    const updateTable = async (reposData) => {
+        const rows = reposData.map(({ symbol, repo, message }) => {
+            const name = path.basename(repo);
+            return [symbol, name, message];
+        });
+
+        // Colour-code the status rows for TUI
+        const chalkT = (await
+            import ("chalk")).default;
+        const colouredRows = rows.map(r => {
+            const symbol = r[0];
+            let colouredSymbol = chalkT.green(symbol);
+            let colouredRepo = chalkT.green(r[1]);
+            let colouredStatus = chalkT.green(r[2]);
+            if (symbol === "✗" || symbol === "⚠") {
+                colouredSymbol = chalkT.red(symbol);
+                colouredRepo = chalkT.red(r[1]);
+                colouredStatus = chalkT.red(r[2]);
+            } else if (symbol === "↑" || symbol === "↓" || symbol === "↕") {
+                colouredSymbol = chalkT.yellow(symbol);
+                colouredRepo = chalkT.yellow(r[1]);
+                colouredStatus = chalkT.yellow(r[2]);
+            }
+            return [colouredSymbol, colouredRepo, colouredStatus];
+        });
+        table.setData({ headers: ["S", "Repo", "Status"], data: colouredRows });
+        currentRepos = reposData;
+    };
+
+    // Initial table update
+    await updateTable(repos);
+
+    const refreshData = async () => {
+        cache.clear(); // Clear cache to get fresh data
+        const gitRepos = await getGitRepos(baseDir, depthLimit);
+        const statuses = await Promise.all(gitRepos.map(async repo => ({ repo, ...(await getGitStatus(repo)) })));
+        const reposToShow = options.all ? statuses : statuses.filter(status => status.symbol !== "✓");
+        await updateTable(reposToShow);
+        screen.render();
+    };
+
+    // Set up auto-refresh every 15 seconds
+    refreshTimer = setInterval(refreshData, 15000);
 
     const help = blessed.text({
         parent: screen,
         bottom: 0,
         right: 2,
-        content: "press Q to quit",
+        content: "Q to quit | SPACE for details | Auto-refresh: 15s",
         style: { fg: "grey" }
     });
 
-    screen.key(["q", "C-c"], () => process.exit(0));
+    screen.key(["q", "C-c"], () => {
+        if (refreshTimer) clearInterval(refreshTimer);
+        process.exit(0);
+    });
     screen.key(["space"], () => table.rows.enterSelected());
 
-    let detailBox = null;
     table.rows.on("select", (_, idx) => {
         if (detailBox) {
             detailBox.destroy();
@@ -258,7 +282,7 @@ const renderTUI = async(repos, baseDir) => {
             screen.render();
             return;
         }
-        const details = repos[idx];
+        const details = currentRepos[idx];
         detailBox = blessed.box({
             parent: screen,
             top: "center",
