@@ -1,6 +1,6 @@
 {
   "name": "git-status-dash",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Monitor git repository status with advanced theming, config, and performance - available in Node.js and Go",
   "main": "index.mjs",
   "bin": {
