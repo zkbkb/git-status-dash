@@ -122,7 +122,7 @@ const walkRepos = async(dir, list = [], depthLeft = Infinity) => {
     }
 
     // Skip common heavy folders to improve speed
-    const SKIP = new Set(['.git', 'node_modules', '.cache', '.venv']);
+    const SKIP = new Set(['.git', 'node_modules', '.cache', '.venv', 'target', 'build', 'dist', '.next', '.nuxt', 'vendor']);
 
     await Promise.all(
         entries
