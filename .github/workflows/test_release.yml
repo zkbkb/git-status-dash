@@ -1,7 +1,20 @@
 name: Test Release
 
 on:
+  # 手动触发测试发布流程
   workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests (for debugging)'
+        required: false
+        default: false
+        type: boolean
+  
+  # 可选：在特定分支push时也触发（如果需要）
+  # push:
+  #   branches:
+  #     - 'release/**'
+  #     - 'test-release'
 
 jobs:
   # Verify Node.js build before release
@@ -26,6 +39,7 @@ jobs:
           fi
         
       - name: Run tests
+        if: ${{ !inputs.skip_tests }}
         run: npm test || echo "No tests found, continuing..."
         
       - name: Verify package.json
