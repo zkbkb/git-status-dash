@@ -18,6 +18,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Version is set at build time via ldflags
+var version = "dev"
+
+// GetVersion returns the application version (immutable)
+func GetVersion() string {
+	return version
+}
+
 type GitStatus struct {
 	Symbol       string
 	Message      string
@@ -63,8 +71,9 @@ func main() {
 		Short: "Monitor git repository status in real-time",
 		Long: `Git Status Dashboard recursively scans directories for git repositories
 and displays their status with beautiful TUI or report output.`,
-		Args: cobra.MaximumNArgs(1),
-		Run:  run,
+		Args:    cobra.MaximumNArgs(1),
+		Version: GetVersion(),
+		Run:     run,
 	}
 
 	// Config commands
