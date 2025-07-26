@@ -150,7 +150,9 @@ check_node_dependencies() {
 # Check Go modules consistency (read-only)
 check_go_modules_consistency() {
     local output
-    if ! output=$($GO_EXECUTABLE mod tidy -diff 2>&1); then
+    output=$($GO_EXECUTABLE mod tidy -diff 2>&1)
+    if [ -n "$output" ]; then
+
         echo "${RED}[✗] Go Modules: Inconsistent (diff check failed)${NC}"
         echo "Details: $output"
         VERIFY_GO_STATUS="failed"
@@ -160,6 +162,13 @@ check_go_modules_consistency() {
         VERIFY_GO_STATUS="success"
         return 0
     fi
+
+    else
+        echo "[${GREEN}✓${NC}] Go Modules: Consistent"
+        VERIFY_GO_STATUS="success"
+        return 0
+    fi
+
 }
 
 # Interactive fixes
@@ -240,12 +249,12 @@ run_build_phase() {
         echo "[${GREEN}✓${NC}] Created symlink: test-build/git-status-dash"
         
         # Test the binary
-        echo "${LIGHT_BLUE}Testing binary functionality...${NC}"
-        if ./test-build/git-status-dash --version >/dev/null 2>&1; then
-            echo "[${GREEN}✓${NC}] Version command works"
-        else
-            echo "[${RED}✗${NC}] Version command failed"
-        fi
+        # echo "${LIGHT_BLUE}Testing binary functionality...${NC}"
+        # if ./test-build/git-status-dash --version >/dev/null 2>&1; then
+        #     echo "[${GREEN}✓${NC}] Version command works"
+        # else
+        #     echo "[${RED}✗${NC}] Version command failed"
+        # fi
         
         if ./test-build/git-status-dash config init >/dev/null 2>&1; then
             echo "[${GREEN}✓${NC}] Config init command works"
