@@ -1,4 +1,4 @@
-name: Release Both Versions
+name: Production Release
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           if [ -f "yarn.lock" ]; then
-            npm install
+            yarn install --frozen-lockfile
           elif [ -f "package-lock.json" ]; then
             npm ci
           else
@@ -134,7 +134,7 @@ jobs:
       - name: Install dependencies
         run: |
           if [ -f "yarn.lock" ]; then
-            npm install
+            yarn install --frozen-lockfile
           elif [ -f "package-lock.json" ]; then
             npm ci
           else
