@@ -463,7 +463,6 @@ prompt_user() {
             echo "${YELLOW}Please answer y or n${NC}"
         fi
     done
-    echo
 }
 
 # Main execution
