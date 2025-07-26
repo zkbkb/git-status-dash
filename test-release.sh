@@ -12,16 +12,16 @@ for arg in "$@"; do
 done
 
 # Smart shell detection: try zsh first, then bash
-if [ -z "${BASH_VERSION}" ] && [ -z "${ZSH_VERSION}" ]; then
+if [ -z "${BASH_VERSION}" ] && [ -z "${ZSH_VERSION}" ] && [ -z "${SHELL_REEXEC_GUARD}" ]; then
     # We're in a basic shell, try to find zsh or bash
     if command -v zsh >/dev/null 2>&1; then
         # Validate and escape arguments before passing to exec
         # Use -- to prevent argument injection
-        exec zsh -- "$0" "$@"
+        SHELL_REEXEC_GUARD=1 exec zsh -- "$0" "$@"
     elif command -v bash >/dev/null 2>&1; then
         # Validate and escape arguments before passing to exec
         # Use -- to prevent argument injection
-        exec bash -- "$0" "$@"
+        SHELL_REEXEC_GUARD=1 exec bash -- "$0" "$@"
     else
         echo "Error: Neither zsh nor bash found. Please install one of them."
         exit 1
