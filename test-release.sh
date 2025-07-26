@@ -241,16 +241,25 @@ run_build_phase() {
         
         # Test the binary
         echo "${LIGHT_BLUE}Testing binary functionality...${NC}"
+        local test_failed=false
         if ./test-build/git-status-dash --version >/dev/null 2>&1; then
             echo "[${GREEN}✓${NC}] Version command works"
         else
             echo "[${RED}✗${NC}] Version command failed"
+            test_failed=true
         fi
-        
+
         if ./test-build/git-status-dash config init >/dev/null 2>&1; then
             echo "[${GREEN}✓${NC}] Config init command works"
         else
             echo "[${RED}✗${NC}] Config init command failed"
+            test_failed=true
+        fi
+
+        if [ "$test_failed" = true ]; then
+            echo "[${RED}✗${NC}] Binary functionality tests failed"
+            BUILD_STATUS="failed"
+            return 1
         fi
     else
         echo "[${RED}✗${NC}] Native binary build failed"
