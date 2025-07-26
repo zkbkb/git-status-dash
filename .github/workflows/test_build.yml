@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   go-test:
-    name: Go Tests
+    name: Go
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -65,7 +65,7 @@ jobs:
           echo "All Go builds completed successfully"
 
   nodejs-test:
-    name: Node.js Tests
+    name: Node.js
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -91,7 +91,7 @@ jobs:
           echo "Node.js checks completed"
 
   security:
-    name: Security Scan
+    name: Security
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
