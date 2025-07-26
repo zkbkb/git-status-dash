@@ -101,7 +101,7 @@ jobs:
           
           # Build binary
           VERSION=${{ github.ref_name || 'v0.0.0-test' }}
-          go build -ldflags="-s -w -X main.Version=$VERSION" \
+          go build -ldflags="-s -w -X main.version=$VERSION" \
             -o "$BINARY_NAME" \
             .
           
@@ -158,7 +158,7 @@ jobs:
           
           # Build with version info
           VERSION=${{ github.ref_name || 'v0.0.0-test' }}
-          go build -ldflags="-s -w -X main.Version=$VERSION" \
+          go build -ldflags="-s -w -X main.version=$VERSION" \
             -o "$BINARY_NAME" \
             .
           
