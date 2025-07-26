@@ -163,7 +163,7 @@ const generateReport = async() => {
     process.stdout.write('\x1B[?25h');
     const unsynced = statuses.filter(status => status.symbol !== '✓');
 
-    //console.log("\nGit Repository Status Report");
+    //console.log('\nGit Repository Status Report');
     //console.log(`Total repositories: ${gitRepos.length}`);
     //console.log(`Repositories needing attention: ${unsynced.length}`);
 

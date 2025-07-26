@@ -1,12 +1,27 @@
 #!/bin/sh
 
+# Validate input arguments
+for arg in "$@"; do
+    # Check for potentially dangerous characters
+    case "$arg" in
+        *[\;\|\&\$\`\(\)\<\>\'\"\*\?]*)
+            echo "Error: Invalid characters in arguments"
+            exit 1
+            ;;
+    esac
+done
+
 # Smart shell detection: try zsh first, then bash
 if [ -z "${BASH_VERSION}" ] && [ -z "${ZSH_VERSION}" ]; then
     # We're in a basic shell, try to find zsh or bash
     if command -v zsh >/dev/null 2>&1; then
-        exec zsh "$0" "$@"
+        # Validate and escape arguments before passing to exec
+        # Use -- to prevent argument injection
+        exec zsh -- "$0" "$@"
     elif command -v bash >/dev/null 2>&1; then
-        exec bash "$0" "$@"
+        # Validate and escape arguments before passing to exec
+        # Use -- to prevent argument injection
+        exec bash -- "$0" "$@"
     else
         echo "Error: Neither zsh nor bash found. Please install one of them."
         exit 1

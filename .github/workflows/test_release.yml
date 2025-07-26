@@ -101,7 +101,9 @@ jobs:
           
           # Build binary
           VERSION=${{ github.ref_name || 'v0.0.0-test' }}
-          go build -ldflags="-s -w -X main.Version=$VERSION"             -o "$BINARY_NAME"             .
+          go build -ldflags="-s -w -X main.version=$VERSION" \
+            -o "$BINARY_NAME" \
+            .
           
           # Verify binary was created
           if [ ! -f "$BINARY_NAME" ]; then
@@ -156,7 +158,9 @@ jobs:
           
           # Build with version info
           VERSION=${{ github.ref_name || 'v0.0.0-test' }}
-          go build -ldflags="-s -w -X main.Version=$VERSION"             -o "$BINARY_NAME"             .
+          go build -ldflags="-s -w -X main.version=$VERSION" \
+            -o "$BINARY_NAME" \
+            .
           
           # Create checksum
           if command -v sha256sum >/dev/null 2>&1; then

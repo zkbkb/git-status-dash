@@ -19,7 +19,12 @@ import (
 )
 
 // Version is set at build time via ldflags
-var Version = "dev"
+var version = "dev"
+
+// GetVersion returns the application version (immutable)
+func GetVersion() string {
+	return version
+}
 
 type GitStatus struct {
 	Symbol       string
@@ -67,7 +72,7 @@ func main() {
 		Long: `Git Status Dashboard recursively scans directories for git repositories
 and displays their status with beautiful TUI or report output.`,
 		Args:    cobra.MaximumNArgs(1),
-		Version: Version,
+		Version: GetVersion(),
 		Run:     run,
 	}
 

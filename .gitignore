@@ -6,5 +6,4 @@ git-status-dash-go-*
 .DS_Store
 .vscode/
 test-build/
-test-build/*
 package-lock.json
