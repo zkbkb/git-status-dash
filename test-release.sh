@@ -247,7 +247,7 @@ run_build_phase() {
     
     # Build native binary first
     echo "${LIGHT_BLUE}Building native binary...${NC}"
-    if $GO_EXECUTABLE build -ldflags="-s -w" -o "test-build/git-status-dash-go-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)" .; then
+    if $GO_EXECUTABLE build -ldflags="-s -w -X main.version=$(node -p \"require('./package.json').version\")" -o "test-build/git-status-dash-go-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)" .; then
         echo "[${GREEN}✓${NC}] Native binary built successfully"
         
         # Create symlink for consistent testing
