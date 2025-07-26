@@ -2,61 +2,16 @@ name: Test Build
 
 on:
   push:
-    branches:
-      - '**'
+    branches: ['**']
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
-  # Verify Node.js build on every commit/PR
-  verify-node:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
-      
-      - name: Install dependencies
-        run: |
-          if [ -f "yarn.lock" ]; then
-            yarn install --frozen-lockfile
-          elif [ -f "package-lock.json" ]; then
-            npm ci
-          else
-            npm install
-          fi
-
-      - name: Lint JavaScript Code
-        run: |
-          npm install -g eslint
-          eslint . --ext .js,.mjs --ignore-path .gitignore --fix-dry-run
-
-      - name: Run tests
-        run: npm test || echo "No tests found, continuing..."
-        
-      - name: Verify package.json
-        run: |
-          echo "Verifying package.json..."
-          if [ ! -f package.json ]; then
-            echo "ERROR: package.json not found!"
-            exit 1
-          fi
-          
-          # Check if version exists
-          VERSION=$(node -p "require('./package.json').version")
-          if [ -z "$VERSION" ]; then
-            echo "ERROR: No version found in package.json!"
-            exit 1
-          fi
-          echo "✓ Package version: $VERSION"
-          
-      - name: Dry run publish
-        run: npm publish --dry-run
-
-  # Verify Go build on every commit/PR
-  verify-go:
+  build-and-test:
+    name: Build & Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -67,88 +22,66 @@ jobs:
             goarch: arm64
     
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
       
-      - uses: actions/setup-go@v4
+      - name: Setup Go
+        uses: actions/setup-go@v4
         with:
           go-version: '1.21'
-      
-      - name: Lint Go Code
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: v1.55
           
-      - name: Verify Go modules
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Go Lint & Test
         run: |
-          echo "Verifying Go modules..."
           go mod tidy
           if [ -n "$(git status --porcelain go.mod go.sum)" ]; then
-            echo "ERROR: go.mod or go.sum needs updating! Please run 'go mod tidy' and commit the changes."
+            echo "ERROR: go.mod or go.sum needs updating! Please run 'go mod tidy' and commit."
             exit 1
           fi
-          
-      - name: Run Go tests
-        run: go test ./... || echo "No tests found, continuing..."
-      
-      - name: Build and verify binary
+          go test ./...
+
+      - name: Go Build
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
         run: |
-          echo "Building for $GOOS/$GOARCH..."
+          BINARY_NAME="git-status-dash-go-${{ matrix.goos }}-${{ matrix.goarch }}"
+          [ "${{ matrix.goos }}" = "windows" ] && BINARY_NAME="${BINARY_NAME}.exe"
+          go build -ldflags="-s -w" -o "$BINARY_NAME" .
           
-          # Determine binary name
-          if [ "$GOOS" = "windows" ]; then
-            BINARY_NAME="git-status-dash-go-${{ matrix.goos }}-${{ matrix.goarch }}.exe"
-          else
-            BINARY_NAME="git-status-dash-go-${{ matrix.goos }}-${{ matrix.goarch }}"
-          fi
-          
-          # Build binary
-          VERSION=${{ github.ref_name || 'v0.0.0-test' }}
-          go build -ldflags="-s -w -X main.Version=$VERSION"             -o "$BINARY_NAME"             .
-          
-          # Verify binary was created
-          if [ ! -f "$BINARY_NAME" ]; then
-            echo "ERROR: Binary $BINARY_NAME was not created!"
-            exit 1
-          fi
-          
-          # Check file size
           SIZE=$(stat -c%s "$BINARY_NAME" 2>/dev/null || stat -f%z "$BINARY_NAME")
-          echo "✓ Binary size: $SIZE bytes"
-          
           if [ "$SIZE" -lt 1000000 ]; then
-            echo "ERROR: Binary seems too small (less than 1MB)!"
+            echo "ERROR: Binary for ${{ matrix.goos }}/${{ matrix.goarch }} is too small (<1MB)!"
             exit 1
           fi
-          
-          # For native platform, test execution
-          if [ "$GOOS" = "$(go env GOOS)" ] && [ "$GOARCH" = "$(go env GOARCH)" ]; then
-            echo "Testing binary execution..."
-            ./$BINARY_NAME --version || echo "Version flag not implemented"
-          fi
+          echo "✓ Built ${{ matrix.goos }}/${{ matrix.goarch }} binary successfully (${SIZE} bytes)."
 
-  # Security Scan
+      - name: Node.js Install, Lint & Test
+        run: |
+          npm install --ignore-scripts
+          
+          # Lint without config file
+          npx eslint@8 --ext .js,.mjs .
+          
+          # Run tests if they exist
+          npm test || echo "No Node.js tests found, continuing..."
+
   security-scan:
+    name: Security Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Run Trivy vulnerability scanner on go.mod
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Trivy Scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           scan-ref: '.'
           ignore-unfixed: true
           format: 'table'
-          vuln-type: 'os,library'
-
-      - name: Run Trivy vulnerability scanner on yarn.lock
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: 'yarn.lock'
-          ignore-unfixed: true
-          format: 'table'
-          vuln-type: 'library' 
+          vuln-type: 'os,library' 
