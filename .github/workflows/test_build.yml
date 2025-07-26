@@ -83,7 +83,7 @@ jobs:
           yarn install --frozen-lockfile --ignore-scripts
           
           echo "Running ESLint..."
-          yarn lint:ci || true  # Only show errors, ignore warnings
+          yarn lint:ci
           
           echo "Running tests..."
           yarn test
