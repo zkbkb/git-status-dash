@@ -299,7 +299,7 @@ run_build_phase() {
             output_name="${output_name}.exe"
         fi
         
-        if GOOS="$os" GOARCH="$arch" $GO_EXECUTABLE build -ldflags="-s -w" -o "$output_name" .; then
+        if GOOS="$os" GOARCH="$arch" $GO_EXECUTABLE build -ldflags="-s -w -X main.version=$(node -p \"require('./package.json').version\")" -o "$output_name" .; then
             echo "[${GREEN}✓${NC}] $platform: $(stat -c%s "$output_name" 2>/dev/null || stat -f%z "$output_name") bytes"
             ((success_count++))
         else
