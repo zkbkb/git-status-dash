@@ -68,7 +68,7 @@ echo "${BLUE}==> 1. Environment Snapshot${NC}"
 echo "[${GREEN}✓${NC}] Operating System: $(uname -s) ($(uname -m))"
 echo "[${GREEN}✓${NC}] Go Version: $($GO_EXECUTABLE version)"
 echo "[${GREEN}✓${NC}] Node.js Version: $(node --version)"
-echo "[${GREEN}✓${NC}] Project Version: $(grep '"version"' package.json | cut -d'"' -f4)"
+echo "[${GREEN}✓${NC}] Project Version: $(node -p \"require('./package.json').version\")"
 
 echo "${BLUE}==> 2. Environment Checks${NC}"
 
