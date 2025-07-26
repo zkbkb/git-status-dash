@@ -4,7 +4,7 @@
 for arg in "$@"; do
     # Check for potentially dangerous characters
     case "$arg" in
-        *[\;\|\&\$\`]*)
+        *[\;\|\&\$\`\(\)\<\>\'\"\*\?]*)
             echo "Error: Invalid characters in arguments"
             exit 1
             ;;
