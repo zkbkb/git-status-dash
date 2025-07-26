@@ -44,7 +44,7 @@ jobs:
             echo "ERROR: No version found in package.json!"
             exit 1
           fi
-          echo "✓ Package version: $VERSION"
+          echo "Package version: $VERSION"
           
       - name: Dry run publish
         run: npm publish --dry-run
@@ -107,7 +107,7 @@ jobs:
           
           # Check file size
           SIZE=$(stat -c%s "$BINARY_NAME" 2>/dev/null || stat -f%z "$BINARY_NAME")
-          echo "✓ Binary size: $SIZE bytes"
+          echo "Binary size: $SIZE bytes"
           
           if [ "$SIZE" -lt 1000000 ]; then
             echo "ERROR: Binary seems too small (less than 1MB)!"
@@ -239,7 +239,7 @@ jobs:
               echo "ERROR: Expected binary $binary not found!"
               exit 1
             fi
-            echo "✓ Found $binary"
+            echo "Found $binary"
           done
           
           # Create a combined checksums file
@@ -286,7 +286,7 @@ jobs:
             #### Verify Download
             Check the `checksums.txt` file to verify your download integrity.
             
-            ### 📊 Performance Comparison
+            ### Performance Comparison
             - **Go is 35% faster** execution
             - **Go uses 90% less memory**
             - **Go has 10x faster startup**

@@ -24,17 +24,17 @@ jobs:
       
       - name: Test & Build
         run: |
-          echo "🔍 Checking Go modules..."
+          echo "Checking Go modules..."
           go mod tidy
           if [ -n "$(git status --porcelain go.mod go.sum)" ]; then
-            echo "❌ go.mod or go.sum needs updating"
+            echo "ERROR: go.mod or go.sum needs updating"
             exit 1
           fi
           
-          echo "🧪 Running tests..."
+          echo "Running tests..."
           go test -v -race ./...
           
-          echo "🔨 Building binaries..."
+          echo "Building binaries..."
           platforms=(
             "linux/amd64"
             "linux/arm64"
@@ -49,14 +49,14 @@ jobs:
             output="git-status-dash-${GOOS}-${GOARCH}"
             [ "$GOOS" = "windows" ] && output="${output}.exe"
             
-            echo "  • Building ${platform}..."
+            echo "  Building ${platform}..."
             GOOS=$GOOS GOARCH=$GOARCH go build -ldflags="-s -w" -o "$output" . || exit 1
             
             size=$(stat -c%s "$output" 2>/dev/null || stat -f%z "$output")
-            echo "    ✓ Size: $(($size / 1024 / 1024)) MB"
+            echo "    Size: $(($size / 1024 / 1024)) MB"
           done
           
-          echo "✅ All Go builds completed successfully"
+          echo "All Go builds completed successfully"
 
   nodejs-test:
     name: Node.js Tests
@@ -73,16 +73,16 @@ jobs:
       
       - name: Test & Lint
         run: |
-          echo "📦 Installing dependencies..."
+          echo "Installing dependencies..."
           npm ci --ignore-scripts || npm install --ignore-scripts
           
-          echo "🔍 Running ESLint..."
-          npm run lint || echo "⚠️  Linting issues found (non-blocking)"
+          echo "Running ESLint..."
+          npm run lint || echo "WARNING: Linting issues found (non-blocking)"
           
-          echo "🧪 Running tests..."
+          echo "Running tests..."
           npm test
           
-          echo "✅ Node.js checks completed"
+          echo "Node.js checks completed"
 
   security:
     name: Security Scan
