@@ -1,6 +1,7 @@
 # Git Status Dashboard
 
-[![Release](https://github.com/ejfox/git-status-dash/actions/workflows/release.yml/badge.svg)](https://github.com/ejfox/git-status-dash/actions/workflows/release.yml)
+[![Release](https://github.com/ejfox/git-status-dash/actions/workflows/production_release.yml/badge.svg)](https://github.com/ejfox/git-status-dash/actions/workflows/production_release.yml)
+[![Test Build](https://github.com/ejfox/git-status-dash/actions/workflows/test_build.yml/badge.svg)](https://github.com/ejfox/git-status-dash/actions/workflows/test_build.yml)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/ejfox/git-status-dash)](https://github.com/ejfox/git-status-dash/releases/latest)
 [![npm version](https://img.shields.io/npm/v/git-status-dash)](https://www.npmjs.com/package/git-status-dash)
 
