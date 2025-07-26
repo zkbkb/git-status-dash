@@ -207,7 +207,7 @@ run_interactive_fixes() {
         fi
     else
         # Ensure status is set even when check passes
-        if [ -z "$VERIFY_GO_STATUS" ]; then
+        if [ "$VERIFY_GO_STATUS" = "unknown" ]; then
             VERIFY_GO_STATUS="success"
         fi
     fi
