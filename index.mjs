@@ -261,7 +261,7 @@ const renderTUI = async(repos, baseDir) => {
     // Set up auto-refresh every 15 seconds
     refreshTimer = setInterval(refreshData, 15000);
 
-    const help = blessed.text({
+    blessed.text({
         parent: screen,
         bottom: 0,
         right: 2,

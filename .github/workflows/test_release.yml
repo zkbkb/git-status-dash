@@ -29,14 +29,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       
       - name: Install dependencies
-        run: |
-          if [ -f "yarn.lock" ]; then
-            yarn install --frozen-lockfile
-          elif [ -f "package-lock.json" ]; then
-            npm ci
-          else
-            npm install
-          fi
+        run: yarn install --frozen-lockfile
         
       - name: Run tests
         if: ${{ !inputs.skip_tests }}

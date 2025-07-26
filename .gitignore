@@ -7,3 +7,4 @@ git-status-dash-go-*
 .vscode/
 test-build/
 test-build/*
+package-lock.json

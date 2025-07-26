@@ -3,6 +3,8 @@ name: Test Build
 on:
   push:
     branches: ['**']
+  pull_request:
+    branches: ['**']
   workflow_dispatch:
 
 concurrency:
@@ -54,6 +56,12 @@ jobs:
             
             size=$(stat -c%s "$output" 2>/dev/null || stat -f%z "$output")
             echo "    Size: $(($size / 1024 / 1024)) MB"
+            
+            # Validate binary size
+            if [ "$size" -lt 1000000 ]; then
+              echo "ERROR: Binary for ${platform} is too small (<1MB)!"
+              exit 1
+            fi
           done
           
           echo "All Go builds completed successfully"
@@ -69,18 +77,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'yarn'
       
       - name: Test & Lint
         run: |
           echo "Installing dependencies..."
-          npm ci --ignore-scripts || npm install --ignore-scripts
+          yarn install --frozen-lockfile --ignore-scripts
           
           echo "Running ESLint..."
-          npm run lint:ci || true  # Only show errors, ignore warnings
+          yarn lint:ci || true  # Only show errors, ignore warnings
           
           echo "Running tests..."
-          npm test
+          yarn test
           
           echo "Node.js checks completed"
 
