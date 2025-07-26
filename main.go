@@ -23,7 +23,7 @@ var version = "dev"
 
 // GetVersion returns the application version (immutable)
 func GetVersion() string {
-	return Version
+	return version
 }
 
 type GitStatus struct {
