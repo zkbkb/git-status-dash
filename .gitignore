@@ -4,3 +4,6 @@ git-status-dash-go
 git-status-dash-go-*
 *.tmp
 .DS_Store
+.vscode/
+test-build/
+test-build/*
