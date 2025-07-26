@@ -150,11 +150,18 @@ check_node_dependencies() {
 # Check Go modules consistency (read-only)
 check_go_modules_consistency() {
     local output
-    if ! output=$($GO_EXECUTABLE mod tidy -diff 2>&1); then
+    local output
+    output=$($GO_EXECUTABLE mod tidy -diff 2>&1)
+    if [ -n "$output" ]; then
         echo "${RED}[✗] Go Modules: Inconsistent (diff check failed)${NC}"
         echo "Details: $output"
         VERIFY_GO_STATUS="failed"
         return 1
+    else
+        echo "[${GREEN}✓${NC}] Go Modules: Consistent"
+        VERIFY_GO_STATUS="success"
+        return 0
+    fi
     else
         echo "[${GREEN}✓${NC}] Go Modules: Consistent"
         VERIFY_GO_STATUS="success"
