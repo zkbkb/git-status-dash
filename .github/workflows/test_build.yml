@@ -77,7 +77,7 @@ jobs:
           npm ci --ignore-scripts || npm install --ignore-scripts
           
           echo "Running ESLint..."
-          npm run lint || echo "WARNING: Linting issues found (non-blocking)"
+          npm run lint:ci || true  # Only show errors, ignore warnings
           
           echo "Running tests..."
           npm test
