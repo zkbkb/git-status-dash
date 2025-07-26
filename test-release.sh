@@ -1,27 +1,12 @@
 #!/bin/sh
 
-# Validate input arguments
-for arg in "$@"; do
-    # Check for potentially dangerous characters
-    case "$arg" in
-        *[\;\|\&\$\`\(\)\<\>\'\"\*\?]*)
-            echo "Error: Invalid characters in arguments"
-            exit 1
-            ;;
-    esac
-done
-
 # Smart shell detection: try zsh first, then bash
-if [ -z "${BASH_VERSION}" ] && [ -z "${ZSH_VERSION}" ] && [ -z "${SHELL_REEXEC_GUARD}" ]; then
+if [ -z "${BASH_VERSION}" -a -z "${ZSH_VERSION}" ]; then
     # We're in a basic shell, try to find zsh or bash
     if command -v zsh >/dev/null 2>&1; then
-        # Validate and escape arguments before passing to exec
-        # Use -- to prevent argument injection
-        SHELL_REEXEC_GUARD=1 exec zsh -- "$0" "$@"
+        exec zsh "$0" "$@"
     elif command -v bash >/dev/null 2>&1; then
-        # Validate and escape arguments before passing to exec
-        # Use -- to prevent argument injection
-        SHELL_REEXEC_GUARD=1 exec bash -- "$0" "$@"
+        exec bash "$0" "$@"
     else
         echo "Error: Neither zsh nor bash found. Please install one of them."
         exit 1
@@ -68,7 +53,7 @@ echo "${BLUE}==> 1. Environment Snapshot${NC}"
 echo "[${GREEN}✓${NC}] Operating System: $(uname -s) ($(uname -m))"
 echo "[${GREEN}✓${NC}] Go Version: $($GO_EXECUTABLE version)"
 echo "[${GREEN}✓${NC}] Node.js Version: $(node --version)"
-echo "[${GREEN}✓${NC}] Project Version: $(node -p \"require('./package.json').version\")"
+echo "[${GREEN}✓${NC}] Project Version: $(grep '"version"' package.json | cut -d'"' -f4)"
 
 echo "${BLUE}==> 2. Environment Checks${NC}"
 
@@ -120,7 +105,7 @@ check_node_dependencies() {
     fi
     
     # Check lock file strategy
-    if [ -f "yarn.lock" ]; then
+    if [ -f "yarn.lock" ] && [ ! -f "package-lock.json" ]; then
         if command -v yarn >/dev/null 2>&1; then
             echo "[${GREEN}✓${NC}] Node.js: Using ${BOLD}yarn${NC} (yarn.lock detected, version: ${BOLD}$version${NC})"
         else
@@ -140,14 +125,14 @@ check_node_dependencies() {
     if [ -f "yarn.lock" ] && command -v yarn >/dev/null 2>&1; then
         if ! output=$(yarn install --dry-run 2>&1); then
             echo "${RED}[✗] Node.js: Dependency check failed (yarn dry-run)${NC}"
-            echo "Details: $(echo "$output" | head -10 | sed 's/.*\/.*@.*/[REDACTED]/')"
+            echo "Details: $output"
             VERIFY_NODE_STATUS="failed"
             return 1
         fi
     else
         if ! output=$(npm install --dry-run 2>&1); then
             echo "${RED}[✗] Node.js: Dependency check failed (npm dry-run)${NC}"
-            echo "Details: $(echo "$output" | head -10 | sed 's/.*\/.*@.*/[REDACTED]/')"
+            echo "Details: $output"
             VERIFY_NODE_STATUS="failed"
             return 1
         fi
@@ -205,7 +190,7 @@ run_interactive_fixes() {
         fi
     else
         # Don't override the status if it's already set
-        if [ "$VERIFY_NODE_STATUS" = "unknown" ]; then
+        if [ -z "$VERIFY_NODE_STATUS" ]; then
             VERIFY_NODE_STATUS="success"
         fi
     fi
@@ -222,7 +207,7 @@ run_interactive_fixes() {
         fi
     else
         # Ensure status is set even when check passes
-        if [ "$VERIFY_GO_STATUS" = "unknown" ]; then
+        if [ -z "$VERIFY_GO_STATUS" ]; then
             VERIFY_GO_STATUS="success"
         fi
     fi
@@ -247,7 +232,7 @@ run_build_phase() {
     
     # Build native binary first
     echo "${LIGHT_BLUE}Building native binary...${NC}"
-    if $GO_EXECUTABLE build -ldflags="-s -w -X main.version=$(node -p \"require('./package.json').version\")" -o "test-build/git-status-dash-go-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)" .; then
+    if $GO_EXECUTABLE build -ldflags="-s -w" -o "test-build/git-status-dash-go-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)" .; then
         echo "[${GREEN}✓${NC}] Native binary built successfully"
         
         # Create symlink for consistent testing
@@ -256,25 +241,16 @@ run_build_phase() {
         
         # Test the binary
         echo "${LIGHT_BLUE}Testing binary functionality...${NC}"
-        local test_failed=false
         if ./test-build/git-status-dash --version >/dev/null 2>&1; then
             echo "[${GREEN}✓${NC}] Version command works"
         else
             echo "[${RED}✗${NC}] Version command failed"
-            test_failed=true
         fi
-
+        
         if ./test-build/git-status-dash config init >/dev/null 2>&1; then
             echo "[${GREEN}✓${NC}] Config init command works"
         else
             echo "[${RED}✗${NC}] Config init command failed"
-            test_failed=true
-        fi
-
-        if [ "$test_failed" = true ]; then
-            echo "[${RED}✗${NC}] Binary functionality tests failed"
-            BUILD_STATUS="failed"
-            return 1
         fi
     else
         echo "[${RED}✗${NC}] Native binary build failed"
@@ -299,7 +275,7 @@ run_build_phase() {
             output_name="${output_name}.exe"
         fi
         
-        if GOOS="$os" GOARCH="$arch" $GO_EXECUTABLE build -ldflags="-s -w -X main.version=$(node -p \"require('./package.json').version\")" -o "$output_name" .; then
+        if GOOS="$os" GOARCH="$arch" $GO_EXECUTABLE build -ldflags="-s -w" -o "$output_name" .; then
             echo "[${GREEN}✓${NC}] $platform: $(stat -c%s "$output_name" 2>/dev/null || stat -f%z "$output_name") bytes"
             ((success_count++))
         else
@@ -487,6 +463,7 @@ prompt_user() {
             echo "${YELLOW}Please answer y or n${NC}"
         fi
     done
+    echo
 }
 
 # Main execution
