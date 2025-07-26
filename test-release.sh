@@ -120,7 +120,7 @@ check_node_dependencies() {
     fi
     
     # Check lock file strategy
-    if [ -f "yarn.lock" ] && [ ! -f "package-lock.json" ]; then
+    if [ -f "yarn.lock" ]; then
         if command -v yarn >/dev/null 2>&1; then
             echo "[${GREEN}✓${NC}] Node.js: Using ${BOLD}yarn${NC} (yarn.lock detected, version: ${BOLD}$version${NC})"
         else
