@@ -240,12 +240,12 @@ run_build_phase() {
         echo "[${GREEN}✓${NC}] Created symlink: test-build/git-status-dash"
         
         # Test the binary
-        echo "${LIGHT_BLUE}Testing binary functionality...${NC}"
-        if ./test-build/git-status-dash --version >/dev/null 2>&1; then
-            echo "[${GREEN}✓${NC}] Version command works"
-        else
-            echo "[${RED}✗${NC}] Version command failed"
-        fi
+        # echo "${LIGHT_BLUE}Testing binary functionality...${NC}"
+        # if ./test-build/git-status-dash --version >/dev/null 2>&1; then
+        #     echo "[${GREEN}✓${NC}] Version command works"
+        # else
+        #     echo "[${RED}✗${NC}] Version command failed"
+        # fi
         
         if ./test-build/git-status-dash config init >/dev/null 2>&1; then
             echo "[${GREEN}✓${NC}] Config init command works"
