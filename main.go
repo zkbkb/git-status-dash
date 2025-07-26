@@ -19,7 +19,7 @@ import (
 )
 
 // Version is set at build time via ldflags
-var Version = "dev"
+var version = "dev"
 
 // GetVersion returns the application version (immutable)
 func GetVersion() string {
