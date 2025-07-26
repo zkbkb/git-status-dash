@@ -190,7 +190,7 @@ run_interactive_fixes() {
         fi
     else
         # Don't override the status if it's already set
-        if [ -z "$VERIFY_NODE_STATUS" ]; then
+        if [ "$VERIFY_NODE_STATUS" = "unknown" ]; then
             VERIFY_NODE_STATUS="success"
         fi
     fi
