@@ -1,7 +1,20 @@
 name: Test Release
 
 on:
+  # 手动触发测试发布流程
   workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests (for debugging)'
+        required: false
+        default: false
+        type: boolean
+  
+  # 可选：在特定分支push时也触发（如果需要）
+  # push:
+  #   branches:
+  #     - 'release/**'
+  #     - 'test-release'
 
 jobs:
   # Verify Node.js build before release
@@ -16,16 +29,10 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       
       - name: Install dependencies
-        run: |
-          if [ -f "yarn.lock" ]; then
-            yarn install --frozen-lockfile
-          elif [ -f "package-lock.json" ]; then
-            npm ci
-          else
-            npm install
-          fi
+        run: yarn install --frozen-lockfile
         
       - name: Run tests
+        if: ${{ !inputs.skip_tests }}
         run: npm test || echo "No tests found, continuing..."
         
       - name: Verify package.json
@@ -42,7 +49,7 @@ jobs:
             echo "ERROR: No version found in package.json!"
             exit 1
           fi
-          echo "✓ Package version: $VERSION"
+          echo "Package version: $VERSION"
           
       - name: Dry run publish
         run: npm publish --dry-run
@@ -104,7 +111,7 @@ jobs:
           
           # Check file size
           SIZE=$(stat -c%s "$BINARY_NAME" 2>/dev/null || stat -f%z "$BINARY_NAME")
-          echo "✓ Binary size: $SIZE bytes"
+          echo "Binary size: $SIZE bytes"
           
           if [ "$SIZE" -lt 1000000 ]; then
             echo "ERROR: Binary seems too small (less than 1MB)!"
@@ -209,7 +216,7 @@ jobs:
               echo "ERROR: Expected binary $binary not found!"
               exit 1
             fi
-            echo "✓ Found $binary"
+            echo "Found $binary"
           done
           
           # Create a combined checksums file
@@ -218,6 +225,6 @@ jobs:
           cd ..
 
           echo "------------------------------------------------"
-          echo "✅ Test release process finished successfully."
+          echo "Test release process finished successfully."
           echo "The following files were built and verified:"
           ls -lR release-assets/ 

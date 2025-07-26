@@ -3,78 +3,98 @@ name: Test Build
 on:
   push:
     branches: ['**']
-  pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
-  build-and-test:
-    name: Build & Test
+  go-test:
+    name: Go Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        goos: [linux, darwin, windows]
-        goarch: [amd64, arm64]
-        exclude:
-          - goos: windows
-            goarch: arm64
-    
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
       
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: '1.21'
+      
+      - name: Test & Build
+        run: |
+          echo "Checking Go modules..."
+          go mod tidy
+          if [ -n "$(git status --porcelain go.mod go.sum)" ]; then
+            echo "ERROR: go.mod or go.sum needs updating"
+            exit 1
+          fi
           
+          echo "Running tests..."
+          go test -v -race ./...
+          
+          echo "Building binaries..."
+          platforms=(
+            "linux/amd64"
+            "linux/arm64"
+            "darwin/amd64"
+            "darwin/arm64"
+            "windows/amd64"
+          )
+          
+          for platform in "${platforms[@]}"; do
+            GOOS="${platform%/*}"
+            GOARCH="${platform#*/}"
+            output="git-status-dash-${GOOS}-${GOARCH}"
+            [ "$GOOS" = "windows" ] && output="${output}.exe"
+            
+            echo "  Building ${platform}..."
+            GOOS=$GOOS GOARCH=$GOARCH go build -ldflags="-s -w" -o "$output" . || exit 1
+            
+            size=$(stat -c%s "$output" 2>/dev/null || stat -f%z "$output")
+            echo "    Size: $((size / 1024)) KB"
+            
+            # Validate binary size
+            if [ "$size" -lt 1000000 ]; then
+              echo "ERROR: Binary for ${platform} is too small (<1MB)!"
+              exit 1
+            fi
+          done
+          
+          echo "All Go builds completed successfully"
+
+  nodejs-test:
+    name: Node.js Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-
-      - name: Go Lint & Test
+          cache: 'yarn'
+      
+      - name: Test & Lint
         run: |
-          go mod tidy
-          if [ -n "$(git status --porcelain go.mod go.sum)" ]; then
-            echo "ERROR: go.mod or go.sum needs updating! Please run 'go mod tidy' and commit."
-            exit 1
-          fi
-          go test ./...
-
-      - name: Go Build
-        env:
-          GOOS: ${{ matrix.goos }}
-          GOARCH: ${{ matrix.goarch }}
-        run: |
-          BINARY_NAME="git-status-dash-go-${{ matrix.goos }}-${{ matrix.goarch }}"
-          [ "${{ matrix.goos }}" = "windows" ] && BINARY_NAME="${BINARY_NAME}.exe"
-          go build -ldflags="-s -w" -o "$BINARY_NAME" .
+          echo "Installing dependencies..."
+          yarn install --frozen-lockfile --ignore-scripts
           
-          SIZE=$(stat -c%s "$BINARY_NAME" 2>/dev/null || stat -f%z "$BINARY_NAME")
-          if [ "$SIZE" -lt 1000000 ]; then
-            echo "ERROR: Binary for ${{ matrix.goos }}/${{ matrix.goarch }} is too small (<1MB)!"
-            exit 1
-          fi
-          echo "✓ Built ${{ matrix.goos }}/${{ matrix.goarch }} binary successfully (${SIZE} bytes)."
-
-      - name: Node.js Install, Lint & Test
-        run: |
-          npm install --ignore-scripts
+          echo "Running ESLint..."
+          yarn lint:ci
           
-          # Lint without config file
-          npx eslint@8 --ext .js,.mjs .
+          echo "Running tests..."
+          yarn test
           
-          # Run tests if they exist
-          npm test || echo "No Node.js tests found, continuing..."
+          echo "Node.js checks completed"
 
-  security-scan:
+  security:
     name: Security Scan
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Trivy Scan
@@ -82,6 +102,6 @@ jobs:
         with:
           scan-type: 'fs'
           scan-ref: '.'
-          ignore-unfixed: true
           format: 'table'
-          vuln-type: 'os,library' 
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'  # Fail on security issues
