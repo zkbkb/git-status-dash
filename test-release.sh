@@ -163,12 +163,6 @@ check_go_modules_consistency() {
         return 0
     fi
 
-    else
-        echo "[${GREEN}✓${NC}] Go Modules: Consistent"
-        VERIFY_GO_STATUS="success"
-        return 0
-    fi
-
 }
 
 # Interactive fixes
