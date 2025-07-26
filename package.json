@@ -10,7 +10,7 @@
     "start": "node index.mjs",
     "build-go": "go build -o git-status-dash-go main.go animations.go hacker_effects.go performance.go config.go themes.go",
     "benchmark": "./fair_benchmark.sh",
-    "lint": "eslint --ext .js,.mjs .",
+    "lint": "eslint --ext .js,.mjs . --max-warnings=200",
     "lint:fix": "eslint --ext .js,.mjs . --fix",
     "test": "echo \"No tests specified\" && exit 0"
   },

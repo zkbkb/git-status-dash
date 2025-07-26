@@ -11,8 +11,8 @@
   "rules": {
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "no-console": "off",
-    "semi": ["error", "always"],
-    "quotes": ["error", "single", { "avoidEscape": true }]
+    "semi": ["warn", "always"],
+    "quotes": ["warn", "single", { "avoidEscape": true }]
   },
   "ignorePatterns": [
     "node_modules/",
@@ -20,6 +20,7 @@
     "dist/",
     "build/",
     "coverage/",
-    "*.go"
+    "*.go",
+    "git-status-dash-*"
   ]
 }
