@@ -125,14 +125,14 @@ check_node_dependencies() {
     if [ -f "yarn.lock" ] && command -v yarn >/dev/null 2>&1; then
         if ! output=$(yarn install --dry-run 2>&1); then
             echo "${RED}[✗] Node.js: Dependency check failed (yarn dry-run)${NC}"
-            echo "Details: $output"
+            echo "Details: $(echo "$output" | head -10 | sed 's/.*\/.*@.*/[REDACTED]/')"
             VERIFY_NODE_STATUS="failed"
             return 1
         fi
     else
         if ! output=$(npm install --dry-run 2>&1); then
             echo "${RED}[✗] Node.js: Dependency check failed (npm dry-run)${NC}"
-            echo "Details: $output"
+            echo "Details: $(echo "$output" | head -10 | sed 's/.*\/.*@.*/[REDACTED]/')"
             VERIFY_NODE_STATUS="failed"
             return 1
         fi
