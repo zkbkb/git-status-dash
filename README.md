@@ -1,8 +1,8 @@
 # Git Status Dashboard
 
-[![Release](https://github.com/ejfox/git-status-dash/actions/workflows/production_release.yml/badge.svg)](https://github.com/zkb/git-status-dash/actions/workflows/production_release.yml)
-[![Test Build](https://github.com/ejfox/git-status-dash/actions/workflows/test_build.yml/badge.svg)](https://github.com/zkb/git-status-dash/actions/workflows/test_build.yml)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/ejfox/git-status-dash)](https://github.com/zkb/git-status-dash/releases/latest)
+[![Release](https://github.com/zkbkb/git-status-dash/actions/workflows/production_release.yml/badge.svg)](https://github.com/zkbkb/git-status-dash/actions/workflows/production_release.yml)
+[![Test Build](https://github.com/zkbkb/git-status-dash/actions/workflows/test_build.yml/badge.svg)](https://github.com/zkbkb/git-status-dash/actions/workflows/test_build.yml)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/zkbkb/git-status-dash)](https://github.com/zkbkb/git-status-dash/releases/latest)
 [![npm version](https://img.shields.io/npm/v/git-status-dash)](https://www.npmjs.com/package/git-status-dash)
 
 <img width="1002" alt="Screenshot 2024-06-14 at 1 29 22 AM" src="https://github.com/ejfox/git-status-monitor/assets/530073/67b94585-f78e-4789-986b-25439b8ccce1">
